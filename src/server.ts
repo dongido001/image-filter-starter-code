@@ -13,6 +13,10 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
+  interface Error {
+    message: string
+  }
+
   // filteredimage endpoint
   app.get("/filteredimage", async (req, res) => {
     let filteredpath: string | null = null
@@ -31,13 +35,14 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
       if (!filteredpath) {
         throw new Error(`could not filter ${image_url}`)
       }
-    } catch (e: any) {
-      res.status(400).json({ status: "error", message: e.message })
+    } catch (e) {
+      const error: Error = e as Error
+      return res.status(400).json({ status: "error", message: error.message })
     }
 
-    // req.on("close", function () {
-    //   // if (filteredpath) deleteLocalFiles([filteredpath])
-    // });
+    req.on("close", function () {
+      if (filteredpath) deleteLocalFiles([filteredpath])
+    });
 
     res.sendFile(filteredpath)
   });
