@@ -17,20 +17,22 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
     message: string
   }
 
+  interface QueryParams {
+    image_url: string
+  }
+
   // filteredimage endpoint
-  app.get("/filteredimage", async (req, res) => {
-    let filteredpath: string | null = null
+  app.get("/filteredimage", async (req: express.Request, res: express.Response) => {
+    let filteredpath: string | null | undefined = null
 
     try {
-      const { image_url } = req.query
+      const { image_url }: QueryParams = req.query
 
       if (!image_url) {
         throw new Error("image_url query param is required")
       }
 
       filteredpath = await filterImageFromURL(image_url as string)
-
-      console.log(filteredpath)
 
       if (!filteredpath) {
         throw new Error(`could not filter ${image_url}`)
